@@ -1,59 +1,24 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
+	"log"
 	"os"
-	"strings"
 )
 
 func main() {
 
-	var fsFiles = make([]string, 0)
-	var dbFiles = make([]string, 0)
-	var missing = make([]string, 0)
+	fileFs := FileInfo{}
+	fileDb := FileInfo{}
 
-	files, err := os.Open("files")
-	if err != nil {
-		fmt.Println(err)
-	}
-	defer files.Close()
-
-	scannerFiles := bufio.NewScanner(files)
-	for scannerFiles.Scan() {
-		fsFiles = append(fsFiles, scannerFiles.Text())
+	if len(os.Args) < 3 {
+		log.Fatal("Need 2 files to compare")
 	}
 
-	if err := scannerFiles.Err(); err != nil {
-		fmt.Println(err)
-	}
-
-	filesDB, err := os.Open("filenamesInDb")
-	if err != nil {
-		fmt.Println(err)
-	}
-	defer filesDB.Close()
-
-	scannerDB := bufio.NewScanner(filesDB)
-	for scannerDB.Scan() {
-		dbFiles = append(dbFiles, scannerDB.Text())
-	}
-
-	if err := scannerDB.Err(); err != nil {
-		fmt.Println(err)
-	}
-
-	for _, db := range dbFiles {
-		for i, fs := range fsFiles {
-			if strings.Trim(db, " ") == strings.Trim(fs, " ") {
-				break
-			}
-
-			if i+1 == len(fsFiles) {
-				missing = append(missing, db)
-			}
-		}
-	}
+	fileDb.ReadData(os.Args[1])
+	fileFs.ReadData(os.Args[2])
+	
+	missing := fileFs.DiffFrom(fileDb.FileArray)
 
 	fmt.Printf("total %d \n", len(missing))
 
