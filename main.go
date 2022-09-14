@@ -60,7 +60,4 @@ func main() {
 	for i, miss := range missing {
 		fmt.Printf("%d, %s\n", i, miss)
 	}
-
-	strings.
-
 }
